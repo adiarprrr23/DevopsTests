@@ -52,6 +52,7 @@ pipeline {
         stage('Docker') {
             steps {
                 script {
+                    dir('backend'){
                     // Define the Docker image name and tag
                     def imageName = "workingblog"
                     def imageTag = "latest"
@@ -65,6 +66,7 @@ pipeline {
 
                     // Push the Docker image to the repository
                     sh "docker push suarim/${imageName}:${imageTag}"
+                    }
                 }
             }
         }
