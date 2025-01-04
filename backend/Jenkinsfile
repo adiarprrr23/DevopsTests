@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        // Use the configured Node.js version, replace "nodejs_16" with the name you gave in Jenkins tool configuration
+        // Use the configured Node.js version
         nodejs 'nodejs_16'
     }
 
@@ -20,8 +20,10 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Install dependencies using npm ci
-                    sh 'npm ci'
+                    // Change directory to backend and install dependencies using npm ci
+                    dir('backend') {
+                        sh 'npm ci'
+                    }
                 }
             }
         }
@@ -39,8 +41,10 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    // Run tests
-                    sh 'npm test'
+                    // Run tests from the backend directory
+                    dir('backend') {
+                        sh 'npm test'
+                    }
                 }
             }
         }
