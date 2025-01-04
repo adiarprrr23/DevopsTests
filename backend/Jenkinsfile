@@ -43,7 +43,7 @@ pipeline {
                 script {
                     // Run tests from the backend directory
                     dir('backend') {
-                        sh 'npm test'
+                        sh 'npm test -- --detectOpenHandles'
                     }
                 }
             }
@@ -73,10 +73,10 @@ pipeline {
 
         stage('Container') {
             steps {
-                dir('backend'){
                 script {
-                    sh 'docker run -d -p 3000:3000 suarim/workingblog:latest'
-                }
+                    dir('backend'){
+                        sh 'docker run -d -p 3000:3000 suarim/workingblog:latest'
+                    }
                 }
             }
         }
