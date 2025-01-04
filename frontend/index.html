@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Website - Full CRUD</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .content-wrapper {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        #posts-container {
+            flex: 1;
+        }
+
+        .blog-post {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .blog-post:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-post h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .blog-post-meta {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .blog-post-content {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        .form-container {
+            width: 400px;
+            position: sticky;
+            top: 20px;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-cancel {
+            background-color: #95a5a6;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-cancel:hover {
+            background-color: #7f8c8d;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-edit {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #d68910;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+
+        .message {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .error-message {
+            background-color: #fceaea;
+            color: var(--accent-color);
+        }
+
+        .success-message {
+            background-color: #e8f6ef;
+            color: #27ae60;
+        }
+
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+
+            .form-container {
+                width: 100%;
+                position: static;
+                margin-top: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>My Blog</h1>
+            <p>Share your thoughts with the world</p>
+        </header>
+
+        <div class="content-wrapper">
+            <div id="posts-container"></div>
+
+            <div class="form-container">
+                <h2>Create a New Post</h2>
+                <form id="blog-form" onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input 
+                            type="text" 
+                            id="title" 
+                            class="form-control" 
+                            placeholder="Enter post title"
+                            required
+                            minlength="3"
+                            maxlength="100"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="content">Content</label>
+                        <textarea 
+                            id="content" 
+                            class="form-control" 
+                            placeholder="Write your post content here..."
+                            rows="6"
+                            required
+                            minlength="10"
+                        ></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Publish Post</button>
+                    <button type="button" class="btn btn-cancel" id="cancel-btn" style="display: none;" onclick="cancelEdit()">Cancel Edit</button>
+                    <div id="form-messages"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = 'http://localhost:8080';
+        let currentEditId = null;
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('form-messages');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
+            setTimeout(() => {
+                messageDiv.textContent = '';
+                messageDiv.className = '';
+            }, 3000);
+        }
+
+        async function fetchPosts() {
+            try {
+                const response = await fetch(`${apiUrl}/posts`);
+                if (!response.ok) throw new Error('Failed to fetch posts');
+                
+                const posts = await response.json();
+                const container = document.getElementById('posts-container');
+                
+                container.innerHTML = posts.map(post => `
+                    <article class="blog-post">
+                        <h3>${post.title}</h3>
+                        <div class="blog-post-meta">
+                            Posted on ${formatDate(post.createdAt || new Date())}
+                        </div>
+                        <div class="blog-post-content">
+                            ${post.content}
+                        </div>
+                        <div class="post-actions">
+                            <button onclick="editPost(${post.id}, '${post.title.replace(/'/g, "\\'")}', '${post.content.replace(/'/g, "\\'")}')" class="btn-edit">Edit</button>
+                            <button onclick="deletePost(${post.id})" class="btn-delete">Delete</button>
+                        </div>
+                    </article>
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Failed to load posts. Please try again later.', 'error');
+            }
+        }
+
+        function editPost(id, title, content) {
+            currentEditId = id;
+            document.getElementById('title').value = title;
+            document.getElementById('content').value = content;
+            document.getElementById('submit-btn').textContent = 'Update Post';
+            document.querySelector('.form-container h2').textContent = 'Edit Post';
+            document.getElementById('cancel-btn').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            currentEditId = null;
+            document.getElementById('blog-form').reset();
+            document.getElementById('submit-btn').textContent = 'Publish Post';
+            document.querySelector('.form-container h2').textContent = 'Create a New Post';
+            document.getElementById('cancel-btn').style.display = 'none';
+        }
+
+        async function deletePost(id) {
+            if (!confirm('Are you sure you want to delete this post?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiUrl}/posts/${id}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) throw new Error('Failed to delete post');
+
+                showMessage('Post deleted successfully!', 'success');
+                await fetchPosts();
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Failed to delete post. Please try again.', 'error');
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+
+            if (!title || !content) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+
+            try {
+                const method = currentEditId ? 'PUT' : 'POST';
+                const url = currentEditId ? `${apiUrl}/posts/${currentEditId}` : `${apiUrl}/posts`;
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title,
+                        content,
+                        createdAt: new Date().toISOString()
+                    }),
+                });
+
+                if (!response.ok) throw new Error('Failed to save post');
+
+                document.getElementById('blog-form').reset();
+                document.getElementById('submit-btn').textContent = 'Publish Post';
+                document.querySelector('.form-container h2').textContent = 'Create a New Post';
+                document.getElementById('cancel-btn').style.display = 'none';
+                currentEditId = null;
+                
+                showMessage(method === 'PUT' ? 'Post updated successfully!' : 'Post created successfully!', 'success');
+                await fetchPosts();
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Failed to save post. Please try again.', 'error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchPosts);
+    </script>
+</body>
+</html>
